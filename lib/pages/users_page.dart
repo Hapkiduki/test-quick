@@ -1,9 +1,15 @@
-import 'package:TestQuick/utils/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:TestQuick/utils/colors.dart';
 import 'package:TestQuick/utils/dimens.dart';
+
+import 'package:TestQuick/pages/profile_page.dart';
+import 'package:TestQuick/pages/chat_users_page.dart';
+
+enum DragState {
+  profile,
+  users,
+}
 
 class UsersPage extends StatefulWidget {
   @override
@@ -13,147 +19,83 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   //List<Usuario> usuarios = [];
 
+  double maxHeight;
+  double minHeight;
+
+  DragState _dragState = DragState.users;
+
+  _onVerticalDrag(DragUpdateDetails details) {
+    if (details.primaryDelta > 7) {
+      setState(() {
+        _dragState = DragState.profile;
+      });
+    } else if (details.primaryDelta < -4) {
+      setState(() {
+        _dragState = DragState.users;
+      });
+    }
+  }
+
+  double _getTopProfile() {
+    if (_dragState == DragState.users) {
+      return -maxHeight;
+    } else {
+      return -minHeight;
+    }
+  }
+
+  double _getTopUsers() {
+    if (_dragState == DragState.users) {
+      return minHeight;
+    } else {
+      return maxHeight;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    maxHeight = dimens.height(context) * .85;
+    minHeight = dimens.height(context) * .15;
+
     return Scaffold(
+      backgroundColor: colors.black,
       body: SafeArea(
-        child: Container(
-          child: Column(
-            children: [
-              Text(
-                'Chats',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOutBack,
+                    top: _getTopProfile(),
+                    left: 0,
+                    right: 0,
+                    height: dimens.height(context),
+                    child: GestureDetector(
+                      onVerticalDragUpdate: _onVerticalDrag,
+                      child: ProfilePage(
+                        dragState: _dragState,
+                      ),
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOutBack,
+                    top: _getTopUsers(),
+                    left: 0,
+                    right: 0,
+                    height: dimens.height(context),
+                    child: ChatUsersPage(
+                      dragState: _dragState,
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemBuilder: (context, index) => _userChat(),
-                  itemCount: 10,
-                  //shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-
-  Widget _userChat() {
-    return Padding(
-      padding: dimens.symetric(context, .05, .02),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _photo(),
-          Container(
-            width: dimens.width(context) * .7,
-            padding: dimens.left(context, .05),
-            child: Column(
-              children: [
-                _bodyUser(),
-                _detailMessage(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  _bodyUser() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            'Ester Esposito',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Text(
-          '12:18 a.m.',
-          style: TextStyle(
-            color: Colors.black38,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
-
-  _detailMessage() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            'Hola hijueputa bobo, venga le cuento un cuento! 😋😋',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: dimens.width(context) * .03,
-        ),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            color: colors.main,
-            child: Padding(
-              padding: dimens.symetric(context, .03, .02),
-              child: Text(
-                '1',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _photo() => Stack(
-        children: [
-          ClipOval(
-            child: CachedNetworkImage(
-              fit: BoxFit.cover,
-              height: dimens.width(context) * .2,
-              width: dimens.width(context) * .2,
-              imageUrl:
-                  'https://cdn2.actitudfem.com/media/files/images/2019/09/la-marquesita-elite.jpg',
-              placeholder: (context, url) => SvgPicture.asset(
-                'assets/icons/user.svg',
-                fit: BoxFit.cover,
-                height: dimens.height(context) * .24,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 10,
-            right: 4,
-            child: Container(
-              width: dimens.width(context) * .03,
-              height: dimens.width(context) * .03,
-              decoration: BoxDecoration(
-                  color: Colors.green[300],
-                  borderRadius: BorderRadius.circular(100)),
-            ),
-          ),
-        ],
-      );
 }

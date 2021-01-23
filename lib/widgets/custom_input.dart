@@ -7,6 +7,7 @@ class CustomInput extends StatelessWidget {
   final TextEditingController textController;
   final TextInputType keyboardType;
   final bool isPassword;
+  final Color color;
 
   const CustomInput(
       {Key key,
@@ -14,7 +15,8 @@ class CustomInput extends StatelessWidget {
       @required this.placeholder,
       this.textController,
       this.keyboardType = TextInputType.text,
-      this.isPassword = false})
+      this.isPassword = false,
+      this.color = Colors.white})
       : super(key: key);
 
   @override
@@ -23,7 +25,7 @@ class CustomInput extends StatelessWidget {
       padding: EdgeInsets.only(top: 5, left: 5, bottom: 5, right: 20),
       margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: color,
           borderRadius: BorderRadius.circular(30),
           boxShadow: <BoxShadow>[
             BoxShadow(

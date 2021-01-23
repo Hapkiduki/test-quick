@@ -2,6 +2,7 @@ import 'package:TestQuick/pages/users_page.dart';
 import 'package:TestQuick/utils/colors.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/chat_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/splash_page.dart';
@@ -42,6 +43,10 @@ class MyApp extends StatelessWidget {
 
             case Routes.USERS:
               return FadeRoute(widget: UsersPage());
+              break;
+
+            case Routes.CHAT:
+              return FadeRoute(widget: ChatPage(settings.arguments));
               break;
 
             default:
